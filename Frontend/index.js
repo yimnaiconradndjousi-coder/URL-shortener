@@ -1,5 +1,6 @@
 const urlInput = document.getElementById("url-input-field");
 const result = document.getElementById("result");
+const copy = document.getElementById("copied");
 const copyBtn = document.getElementById("copy");
 const submitBtn = document.getElementById("submit-btn");
 const serverURL = "http://localhost:8080/api/get_url";
@@ -14,13 +15,12 @@ async function postUserData(url, data) {
             body: JSON.stringify(data)
         });
 
+        const result = await response.json()
         if (!response.ok) {
-            const error = await response.json();
             throw new Error(
-                `Status ${response.status}, ${error.message}`
+                `Status ${response.status}, ${result.message}`
             )
         };
-        const result = await response.json()
         return result.shorturl
 
     } catch(error) {
@@ -30,11 +30,18 @@ async function postUserData(url, data) {
 
 submitBtn.addEventListener('click', (e) => {
     e.preventDefault();
-
     const data = {
         url: urlInput.value
     };
+
     const shortURL = Promise.resolve(postUserData(serverURL, data));
-    shortURL.then(value => result.textContent = value);
-    
+    shortURL.then(value => result.textContent = value);  
 })
+
+copyBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const text = result.innerText;
+    navigator.clipboard.writeText(text);
+    
+    alert("Copied!");
+});

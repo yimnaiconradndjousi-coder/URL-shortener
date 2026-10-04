@@ -42,7 +42,7 @@ input[type='url'] {
     color: white;
     border-radius: 6px;
     border: 2px solid #2F93D6;
-    background:none;
+    background: rgb(26, 26, 26);
     padding: 6px;
 }
 
@@ -54,6 +54,12 @@ input[type='url']:active, input[type='url']:focus {
     outline: none;
 }
 
+#copydiv {
+    display: flex;
+    flex-direction: column;
+    margin: 15% 0 15% 0;
+}
+
 #result-container {
     display: grid;
     color: white;
@@ -61,12 +67,27 @@ input[type='url']:active, input[type='url']:focus {
     column-gap: 5px;
     padding: 5px;
     background: rgb(38, 46, 53);
-    margin: 15% 0 15% 0 ;
     border-radius: 6px;
     align-items: center;
     box-shadow: 0px 1px rgba(0,0,0,0.2);
     backdrop-filter: blur(2.5px);
     cursor: pointer;
+}
+
+.copied-div {
+    display: flex;
+    justify-content: center;
+}
+
+#copy {
+    background: none;
+    border: none;
+}
+
+#copied {
+    display: none;
+    color: white;
+    text-align: center;
 }
 
 .icon {

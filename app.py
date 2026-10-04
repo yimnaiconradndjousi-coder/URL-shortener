@@ -4,6 +4,7 @@ from schema import URL
 from pydantic import ValidationError
 from database.db import connect_db, get_id, get_url, add_url
 import base64
+from http import HTTPStatus
 
 app = Flask(__name__)
 
@@ -14,27 +15,30 @@ CORS(app, origins=[
 
 mainURL = "http://localhost:8080/"
 
+def process_url():
+   pass
+
 @app.post('/api/get_url')
 async def fetch_url():
    data = request.get_json(silent=True)
    try:
       data = URL.model_validate(data)
    except ValidationError as error:
-      return jsonify({"message":"Invalid input", "error":error}), 400
+      return jsonify({"message":"Invalid input", "error":error}), HTTPStatus.BAD_REQUEST
 
    conn = await connect_db()
    url = data.url
    id = await get_id(conn, url)
    if id is not None:
          encoded_id = base64.urlsafe_b64encode(str(id).encode('utf-8'))
-         id = encoded_id.decode("utf-8")
-         short_url = mainURL + str(id)
+         id = str(encoded_id.decode("utf-8"))
+         short_url = mainURL + id
          await conn.close()
          
          return jsonify({
             'message':"short URL created successfully.",
             'shorturl': short_url
-         }), 201
+         }), HTTPStatus.CREATED
 
    await add_url(conn, url)
    id = str(await get_id(conn, url))      
@@ -46,17 +50,21 @@ async def fetch_url():
    return jsonify({
          'message':"short URL created successfully.",
          'shorturl': short_url
-      }), 201
+      }), HTTPStatus.CREATED
    
-@app.route('/<string:id>')
+@app.get('/<string:id>')
 async def short(id: str):
    conn = await connect_db()
-   decoded_id = base64.urlsafe_b64decode(id)
-   id = decoded_id.decode('utf-8')
-   url = await get_url(conn, id)
-
+   try:
+      decoded_id = base64.urlsafe_b64decode(id)
+      id = decoded_id.decode('utf-8')
+      url = await get_url(conn, id)
+   except RuntimeError:
+      return jsonify({"message":"Something went wrong"}), HTTPStatus.INTERNAL_SERVER_ERROR
+   finally: 
+      await conn.close()
    if url is None:
-      return jsonify({"message":"Invalid URL"}), 400
+      return jsonify({"message":"Invalid URL"}), HTTPStatus.BAD_REQUEST
 
    return redirect(url)
 

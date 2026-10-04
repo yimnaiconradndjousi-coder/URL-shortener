@@ -13,10 +13,16 @@
 
         <input type="url" name="url" id="url-input-field" placeholder="Enter URL to shorten" autofocus required>
         
-
-        <div id="result-container">
-            <p id="result"></p>
-            <img src="./src/copy-white.png" alt="copy icon" id="copy" class="icon">
+        <div id="copydiv">
+            <div id="result-container">
+                <p id="result"></p> 
+                <button id="copy">
+                    <img src="./src/copy-white.png" alt="copy icon" class="icon">
+                </button>
+            </div>
+            <div class="copied-div">
+                <span id="copied">Copied!</span>
+            </div>
         </div>
 
         <div class="submit-btn-container">
